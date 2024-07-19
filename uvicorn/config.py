@@ -386,6 +386,13 @@ class Config:
 
                 with open(self.log_config) as file:
                     loaded_config = yaml.safe_load(file)
+                    logging_handlers = loaded_config.get("handlers", None)
+                    if logging_handlers is not None:
+                        for handler in logging_handlers.values():
+                            if "filename" in handler:
+                                log_path = Path(handler["filename"]).parent
+                                if not log_path.exists():
+                                    log_path.mkdir(parents=True, exist_ok=True)
                     logging.config.dictConfig(loaded_config)
             else:
                 # See the note about fileConfig() here:
