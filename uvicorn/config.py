@@ -320,10 +320,22 @@ class Config:
             )
 
         if env_file is not None:
-            from dotenv import load_dotenv
+            if env_file.endswith(".env"):
+                from dotenv import load_dotenv
 
-            logger.info("Loading environment from '%s'", env_file)
-            load_dotenv(dotenv_path=env_file)
+                logger.info("Loading environment from '%s'", env_file)
+                load_dotenv(dotenv_path=env_file)
+            elif env_file.endswith(".yaml") or env_file.endswith(".yml"):
+                import yaml
+                try:
+                    with open(env_file, "r") as f:
+                        env_vars = yaml.safe_load(f)
+                    for key, value in env_vars.items():
+                        os.environ[key] = value
+                except yaml.YAMLError as exc:
+                    logger.error("Error parsing YAML file: %s", exc)
+            else:
+                logger.error("Unsupported file extension for env_file: %s", env_file)
 
         if workers is None and "WEB_CONCURRENCY" in os.environ:
             self.workers = int(os.environ["WEB_CONCURRENCY"])
