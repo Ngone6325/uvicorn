@@ -326,12 +326,21 @@ class Config:
                 logger.info("Loading environment from '%s'", env_file)
                 load_dotenv(dotenv_path=env_file)
             elif env_file.endswith(".yaml") or env_file.endswith(".yml"):
+                def flatten_dict(d, parent_key='', sep='__'):
+                    items = []
+                    for k, v in d.items():
+                        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+                        if isinstance(v, dict):
+                            items.extend(flatten_dict(v, new_key, sep=sep).items())
+                        else:
+                            items.append((new_key, str(v)))
+                    return dict(items)
+
                 import yaml
                 try:
                     with open(env_file, "r") as f:
                         env_vars = yaml.safe_load(f)
-                    for key, value in env_vars.items():
-                        os.environ[key] = value
+                    os.environ.update(flatten_dict(env_vars))
                 except yaml.YAMLError as exc:
                     logger.error("Error parsing YAML file: %s", exc)
             else:
