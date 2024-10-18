@@ -393,9 +393,9 @@ class Config:
                     if logging_handlers is not None:
                         for handler in logging_handlers.values():
                             if (
-                                ("filename" in handler and (filename:=handler["filename"])) 
+                                ("filename" in handler and (filename:= handler["filename"])) 
                                 or 
-                                ('sink' in handler and (filename :=handler['sink']) != "sys.stdout")
+                                ('sink' in handler and (filename := handler['sink']) != "sys.stdout")
                             ):
                                 log_path = Path(filename).parent
                                 if not log_path.exists():
